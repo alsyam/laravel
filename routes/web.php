@@ -1,12 +1,14 @@
 <?php
 
-use App\Http\Controllers\CookieController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FileController;
+use App\Http\Middleware\VerifyCsrfToken;
 use App\Http\Controllers\HelloController;
 use App\Http\Controllers\InputController;
+use App\Http\Controllers\CookieController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\ResponseController;
-use Illuminate\Support\Facades\Route;
+// use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 /*
 |--------------------------------------------------------------------------
@@ -97,7 +99,7 @@ Route::post('/input/filter/except', [\App\Http\Controllers\InputController::clas
 Route::post('/input/filter/merge', [\App\Http\Controllers\InputController::class, 'filterMerge']);
 
 
-Route::post('/file/upload', [FileController::class, 'upload']);
+Route::post('/file/upload', [FileController::class, 'upload'])->withoutMiddleware([VerifyCsrfToken::class]);
 
 Route::get('response/hello', [ResponseController::class, 'response']);
 Route::get('response/header', [ResponseController::class, 'header']);
@@ -120,3 +122,11 @@ Route::get("/redirect/name", [RedirectController::class, "redirectName"]);
 Route::get("/redirect/name/{name}", [RedirectController::class, "redirectHello"])->name('redirect-hello');
 Route::get('/redirect/action', [RedirectController::class, 'redirectAction']);
 Route::get('/redirect/away', [RedirectController::class, 'redirectAway']);
+
+// middleware
+Route::get('/middleware/api', function () {
+    return "OK";
+})->middleware(['contoh:PZN,401']);
+Route::get('/middleware/group', function () {
+    return "GROUP";
+})->middleware(['pzn']);
