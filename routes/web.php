@@ -1,7 +1,9 @@
 <?php
 
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\FormController;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Http\Controllers\HelloController;
 use App\Http\Controllers\InputController;
@@ -104,16 +106,20 @@ Route::post('/file/upload', [FileController::class, 'upload'])->withoutMiddlewar
 Route::get('response/hello', [ResponseController::class, 'response']);
 Route::get('response/header', [ResponseController::class, 'header']);
 
+// response
+Route::prefix('/response/type')->group(function () {
+    Route::get('/view', [ResponseController::class, 'responseView']);
+    Route::get('/json', [ResponseController::class, 'responseJson']);
+    Route::get('/file', [ResponseController::class, 'responseFile']);
+    Route::get('/download', [ResponseController::class, 'responseDownload']);
+});
 
-Route::get('/response/type/view', [ResponseController::class, 'responseView']);
-Route::get('/response/type/json', [ResponseController::class, 'responseJson']);
-Route::get('/response/type/file', [ResponseController::class, 'responseFile']);
-Route::get('/response/type/download', [ResponseController::class, 'responseDownload']);
+Route::controller(CookieController::class)->group(function () {
 
-
-Route::get('/cookie/set', [CookieController::class, 'createCookie']);
-Route::get('/cookie/get', [CookieController::class, 'getCookie']);
-Route::get('/cookie/clear', [CookieController::class, 'clearCookie']);
+    Route::get('/cookie/set', 'createCookie');
+    Route::get('/cookie/get', 'getCookie');
+    Route::get('/cookie/clear', 'clearCookie');
+});
 
 
 Route::get("/redirect/from", [RedirectController::class, "redirectFrom"]);
@@ -123,10 +129,22 @@ Route::get("/redirect/name/{name}", [RedirectController::class, "redirectHello"]
 Route::get('/redirect/action', [RedirectController::class, 'redirectAction']);
 Route::get('/redirect/away', [RedirectController::class, 'redirectAway']);
 
+
 // middleware
-Route::get('/middleware/api', function () {
-    return "OK";
-})->middleware(['contoh:PZN,401']);
-Route::get('/middleware/group', function () {
-    return "GROUP";
-})->middleware(['pzn']);
+Route::middleware(['contoh:PZN,401'])->prefix('/middleware')->group(function () {
+    Route::get('/api', function () {
+        return "OK";
+    });
+    Route::get('/group', function () {
+        return "GROUP";
+    });
+});
+
+// CSRF
+Route::get("/form", [FormController::class, 'form']);
+Route::post("/form", [FormController::class, 'submitForm']);
+
+// URL GEneretion
+Route::get('/url/current', function () {
+    return URL::full();
+});
