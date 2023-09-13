@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\ValidationException;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FileController;
@@ -10,6 +11,8 @@ use App\Http\Controllers\InputController;
 use App\Http\Controllers\CookieController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\ResponseController;
+use App\Http\Controllers\SessionController;
+
 // use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 /*
@@ -126,6 +129,13 @@ Route::get("/redirect/from", [RedirectController::class, "redirectFrom"]);
 Route::get("/redirect/to", [RedirectController::class, "redirectTo"]);
 Route::get("/redirect/name", [RedirectController::class, "redirectName"]);
 Route::get("/redirect/name/{name}", [RedirectController::class, "redirectHello"])->name('redirect-hello');
+Route::get("/redirect/named", function () {
+    // return route('redirect-hello', ['name' => 'Eko']);
+    // return url()->route('redirect-hello', ['name' => 'Eko']);
+    return URL::route('redirect-hello', ['name' => 'Eko']);
+});
+
+
 Route::get('/redirect/action', [RedirectController::class, 'redirectAction']);
 Route::get('/redirect/away', [RedirectController::class, 'redirectAway']);
 
@@ -141,10 +151,30 @@ Route::middleware(['contoh:PZN,401'])->prefix('/middleware')->group(function () 
 });
 
 // CSRF
+Route::get('/url/action', function () {
+    return action([FormController::class, 'form']);
+});
 Route::get("/form", [FormController::class, 'form']);
 Route::post("/form", [FormController::class, 'submitForm']);
 
 // URL GEneretion
 Route::get('/url/current', function () {
     return URL::full();
+});
+
+
+// Session
+Route::get('/session/create', ([SessionController::class, 'createSession']));
+Route::get('/session/get', ([SessionController::class, 'getSession']));
+
+// Error Handling
+Route::get('/error/sample', function () {
+    throw new Exception("Sample Error");
+});
+Route::get('/error/manual', function () {
+    report(new Exception("Sample Error"));
+    return "OK";
+});
+Route::get('/error/validation', function () {
+    throw new \App\Exceptions\ValidationException("Validation Error");
 });
